@@ -5,10 +5,19 @@ import bagel.*;
  * Please enter your name below
  * @Author (hongjianz1)
  */
-public class ShadowDance extends AbstractGame  {
+public class ShadowDance extends AbstractGame {
     private final static int WINDOW_WIDTH = 1024;
     private final static int WINDOW_HEIGHT = 768;
     private final static String GAME_TITLE = "SHADOW DANCE";
+
+
+    /**
+     * This set of constants are used as flags to indicate the status of the game
+     */
+    private boolean showInitialInterface = true; // flags to indicate the current scene
+
+    private boolean isPaused = false; //Add a flag to track the pause status
+
     /**
      * The following constant declarations cannot be set as static
      * If they are declared as static, these resources may be shared among all instances of the application
@@ -29,7 +38,17 @@ public class ShadowDance extends AbstractGame  {
     private final DrawOptions TITLE_OPTIONS = new DrawOptions().setBlendColour(1.0, 1.0, 1.0);
     private final DrawOptions INSTRUCTION_OPTIONS = new DrawOptions().setBlendColour(1.0, 1.0, 1.0);
 
-    public ShadowDance(){
+    //draw initial interface
+    private void drawInitialInterface(){
+        // draw title
+        TITLE_FONT.drawString(TITLE, 220.0, 250.0, TITLE_OPTIONS);
+
+        // draw instructions
+        INSTRUCTION_FONT.drawString(INSTRUCTION1, 320.0, 440.0, INSTRUCTION_OPTIONS);
+        INSTRUCTION_FONT.drawString(INSTRUCTION2, 320.0, 490.0, INSTRUCTION_OPTIONS);
+    }
+
+    public ShadowDance() {
         super(WINDOW_WIDTH, WINDOW_HEIGHT, GAME_TITLE);
     }
 
@@ -57,16 +76,40 @@ public class ShadowDance extends AbstractGame  {
     @Override
     protected void update(Input input) {
 
-        if (input.wasPressed(Keys.ESCAPE)){
+        if (input.wasPressed(Keys.ESCAPE)) {
             Window.close();
         }
-        BACKGROUND_IMAGE.draw(Window.getWidth()/2.0, Window.getHeight()/2.0);
+        BACKGROUND_IMAGE.draw(Window.getWidth() / 2.0, Window.getHeight() / 2.0);
 
-        // draw title
-        TITLE_FONT.drawString(TITLE, 220.0, 250.0, TITLE_OPTIONS);
+        //keyboard input
+        //press tab to pause
+        if (input.wasPressed(Keys.TAB)) {
+            isPaused = !isPaused; // switch the pause status
+        }
+        if (isPaused) {
+            //  draw pause message
+            return;
+        }
 
-        // draw instructions
-        INSTRUCTION_FONT.drawString(INSTRUCTION1, 320.0, 440.0, INSTRUCTION_OPTIONS);
-        INSTRUCTION_FONT.drawString(INSTRUCTION2, 320.0, 490.0, INSTRUCTION_OPTIONS);
+        if (input.wasPressed(Keys.SPACE)) {
+            showInitialInterface = false; //press"space" to switch the interface
+        }
+        if (showInitialInterface) {
+            drawInitialInterface();
+        }
+        else {
+            if (input.isDown(Keys.LEFT)) {
+                // Add logical judgment statement
+            }
+            if (input.isDown(Keys.RIGHT)) {
+            // Add logical judgment statement
+            }
+            if (input.isDown(Keys.DOWN)) {
+            // Add logical judgment statement
+            }
+            if (input.wasPressed(Keys.ESCAPE)) {
+            // Add logical judgment statement
+            }
+        }
     }
 }
