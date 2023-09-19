@@ -59,6 +59,9 @@ public class NoteNormal {
     public double getSpeed() {
         return speed;
     }
+    public int getGrade(int currentFrame) {
+        return grade(currentFrame);
+    }
 
     protected static int getWindowHeight() {
         return windowHeight;

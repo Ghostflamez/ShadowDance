@@ -59,6 +59,9 @@ public class ShadowDance extends AbstractGame {
     private List<List<String>> popOrder; // store the pop order of notes
     private List<NoteNormal> notes; // store the notes data
 
+    List<NoteNormal> currentNormal = new ArrayList<>();
+    List<NoteHold> currentHold = new ArrayList<>();
+
     //construct a method for easy use
     private boolean isLaneType(String value) { // check if the value is a lane type
         return "Left".equals(value) || "Right".equals(value) || "Up".equals(value) || "Down".equals(value);
@@ -144,6 +147,7 @@ public class ShadowDance extends AbstractGame {
 
     //draw playing interface
     private void drawPlayingInterface() {
+        currentFrame++;
         // Create NoteRepository instance
         NoteRepository notions = new NoteRepository();
         notions = NoteFactory.makeNotes(refSet, popOrder);
@@ -163,15 +167,13 @@ public class ShadowDance extends AbstractGame {
 
         for (NoteNormal note : normalNotes) {
                 if (note.exit() > currentFrame && note.initialFrame < currentFrame) {
-                    // 创建图像
                     Image img = new Image("res/note" + note.getNoteType() + ".png");
 
-                    // 获取坐标
                     double yCoordinate = note.currentY(currentFrame);
                     double xCoordinate = note.getXCoordinate();
 
-                    // 绘制图像
                     img.draw(xCoordinate, yCoordinate);
+                    currentNormal.add(note);
                 }
             }
 
@@ -181,21 +183,16 @@ public class ShadowDance extends AbstractGame {
         holdNotes = notions.getHold();
         for (NoteHold note : holdNotes) {
             if (note.exit() > currentFrame && note.initialFrame < currentFrame) {
-                // 创建图像
-                Image img = new Image("res/note" + note.getNoteType() + ".png");
 
-                // 获取y坐标
+                Image img = new Image("res/holdNote" + Character.toUpperCase(note.getNoteType().charAt(0)) + note.getNoteType().substring(1) + ".png");
+
                 double yCoordinate = note.currentY(currentFrame);
                 double xCoordinate = note.getXCoordinate();
-                // 绘制图像
+
                 img.draw(xCoordinate, yCoordinate);
+                currentHold.add(note);
             }
         }
-
-
-
-
-        currentFrame += 1;
     }
 
     /**
@@ -224,30 +221,66 @@ public class ShadowDance extends AbstractGame {
             isPaused = !isPaused; // switch the pause status
         }
         if (isPaused) {
-            //  draw pause message
+            //don't know how to pause the game
             return;
         }
 
         if (input.wasPressed(Keys.SPACE)) {
             showInitialInterface = false; //press"space" to switch the interface
         }
+
         if (showInitialInterface) {
             drawInitialInterface();
         }
         else {
             drawPlayingInterface();
+
+            //detect keyboard press
             if (input.isDown(Keys.LEFT)) {
-                // Add logical judgment statement
+
             }
             if (input.isDown(Keys.RIGHT)) {
             // Add logical judgment statement
             }
+            if (input.isDown(Keys.UP)) {
+                /*
+                int normalUpScore = 0;
+                for (NoteNormal note : currentNormal) {
+                    if (note.getNoteType().equals("Up")) {
+                        normalUpScore += note.getGrade(currentFrame);
+                    }
+                }
+
+                int holdUpScore = 0;
+                for (NoteHold note : currentHold) {
+                    if (note.getNoteType().equals("Up")) {
+                        holdUpScore += note.upperGrade(currentFrame);
+                    }
+                }
+
+                int totalUpScore = normalUpScore + holdUpScore;
+                score += totalUpScore;
+
+                 */
+            }
             if (input.isDown(Keys.DOWN)) {
             // Add logical judgment statement
             }
-            if (input.wasPressed(Keys.ESCAPE)) {
-            // Add logical judgment statement
+
+            //detect keyboard release
+            if (input.isUp(Keys.LEFT)) {
+
+            }
+            if (input.isUp(Keys.RIGHT)) {
+                // Add logical judgment statement
+            }
+            if (input.isUp(Keys.UP)) {
+                // Add logical judgment statement
+            }
+            if (input.isUp(Keys.DOWN)) {
+                // Add logical judgment statement
             }
         }
+
     }
 }

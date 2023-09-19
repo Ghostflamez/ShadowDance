@@ -33,11 +33,12 @@ public class NoteHold extends NoteNormal {
         return Math.abs(currentLowerY(currentFrame) - getRefY());
     }
 
-    @Override
-    public int grade(int currentFrame) {
-        int upperScore = gradeBasedOnDistance(upperDistance(currentFrame));
-        int lowerScore = gradeBasedOnDistance(lowerDistance(currentFrame));
-        return upperScore + lowerScore;
+    public int upperGrade(int currentFrame) {
+        return gradeBasedOnDistance(upperDistance(currentFrame));
+    }
+
+    public int lowerGrade(int currentFrame) {
+        return gradeBasedOnDistance(lowerDistance(currentFrame));
     }
 
     private int gradeBasedOnDistance(double distance) {
@@ -51,6 +52,11 @@ public class NoteHold extends NoteNormal {
     // Disallow calling of distance from outside this class and its subclasses
     @Override
     public double distance(int currentFrame) {
+        throw new UnsupportedOperationException("distance method is break into upperDistance and lowerDistance in NoteHold");
+    }
+
+    @Override
+    public int grade(int currentFrame) {
         throw new UnsupportedOperationException("distance method is break into upperDistance and lowerDistance in NoteHold");
     }
 }
