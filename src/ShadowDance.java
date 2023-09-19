@@ -20,6 +20,14 @@ public class ShadowDance extends AbstractGame {
     // game status flags
     private boolean showInitialInterface = true; // flags to indicate the current interface
     private boolean isPaused = false; //flag to track the pause status
+    boolean upPressed = false;
+    boolean downPressed = false;
+    boolean leftPressed = false;
+    boolean rightPressed = false;
+    boolean upReleased = false;
+    boolean downReleased = false;
+    boolean leftReleased = false;
+    boolean rightReleased = false;
 
     /**
      * Constants for the notes
@@ -236,50 +244,178 @@ public class ShadowDance extends AbstractGame {
             drawPlayingInterface();
 
             //detect keyboard press
-            if (input.isDown(Keys.LEFT)) {
+            if (input.wasPressed(Keys.LEFT)) {
+                leftPressed = true;
+            }
+            if (input.wasPressed(Keys.RIGHT)) {
+                rightPressed = true;
+            }
+            if (input.wasPressed(Keys.UP)) {
+                // 设置按下标志
+                upPressed = true;
+            }
+            if (input.wasPressed(Keys.DOWN)) {
+                downPressed = true;
+            }
 
+            //detect keyboard release
+            if (input.wasReleased(Keys.LEFT)) {
+                upReleased = true;
             }
-            if (input.isDown(Keys.RIGHT)) {
-            // Add logical judgment statement
+            if (input.wasReleased(Keys.RIGHT)) {
+                rightReleased = true;
             }
-            if (input.isDown(Keys.UP)) {
-                /*
+            if (input.wasReleased(Keys.UP)) {
+                upReleased = true;
+            }
+            if (input.wasReleased(Keys.DOWN)) {
+                downReleased = true;
+            }
+
+            // score calculation
+            /**
+                * The following code is used to calculate the score after press action
+             */
+            // up
+            if(upPressed && !upReleased) {
                 int normalUpScore = 0;
                 for (NoteNormal note : currentNormal) {
                     if (note.getNoteType().equals("Up")) {
-                        normalUpScore += note.getGrade(currentFrame);
+                        normalUpScore = note.getGrade(currentFrame);
                     }
                 }
 
                 int holdUpScore = 0;
                 for (NoteHold note : currentHold) {
                     if (note.getNoteType().equals("Up")) {
-                        holdUpScore += note.upperGrade(currentFrame);
+                        holdUpScore = note.lowerGrade(currentFrame);
                     }
                 }
 
                 int totalUpScore = normalUpScore + holdUpScore;
                 score += totalUpScore;
+                upPressed = false;
+            }
+            if(upReleased){
+                upReleased = false;
+            }
+            //down
+            if(downPressed && !downReleased) {
+                int normalDownScore = 0;
+                for (NoteNormal note : currentNormal) {
+                    if (note.getNoteType().equals("Down")) {
+                        normalDownScore = note.getGrade(currentFrame);
+                    }
+                }
 
-                 */
+                int holdDownScore = 0;
+                for (NoteHold note : currentHold) {
+                    if (note.getNoteType().equals("Down")) {
+                        holdDownScore = note.lowerGrade(currentFrame);
+                    }
+                }
+
+                int totalDownScore = normalDownScore + holdDownScore;
+                score += totalDownScore;
+                downPressed = false;
             }
-            if (input.isDown(Keys.DOWN)) {
-            // Add logical judgment statement
+            if(downReleased){
+                downReleased = false;
+            }
+            //left
+            if(leftPressed && !leftReleased) {
+                int normalLeftScore = 0;
+                for (NoteNormal note : currentNormal) {
+                    if (note.getNoteType().equals("Left")) {
+                        normalLeftScore = note.getGrade(currentFrame);
+                    }
+                }
+
+                int holdLeftScore = 0;
+                for (NoteHold note : currentHold) {
+                    if (note.getNoteType().equals("Left")) {
+                        holdLeftScore = note.lowerGrade(currentFrame);
+                    }
+                }
+
+                int totalLeftScore = normalLeftScore + holdLeftScore;
+                score += totalLeftScore;
+                leftPressed = false;
+            }
+            if(leftReleased){
+                leftReleased = false;
+            }
+            //right
+            if(rightPressed && !rightReleased) {
+                int normalRightScore = 0;
+                for (NoteNormal note : currentNormal) {
+                    if (note.getNoteType().equals("Right")) {
+                        normalRightScore = note.getGrade(currentFrame);
+                    }
+                }
+
+                int holdRightScore = 0;
+                for (NoteHold note : currentHold) {
+                    if (note.getNoteType().equals("Right")) {
+                        holdRightScore = note.lowerGrade(currentFrame);
+                    }
+                }
+
+                int totalRightScore = normalRightScore + holdRightScore;
+                score += totalRightScore;
+                rightPressed = false;
+            }
+            if(rightReleased){
+                rightReleased = false;
+            }
+            /**
+             * The following code is used to calculate the score after release action
+             */
+            // up
+            if(upReleased){
+                int holdUpScore = 0;
+                for (NoteHold note : currentHold) {
+                    if (note.getNoteType().equals("Up")) {
+                        holdUpScore += note.upperGrade(currentFrame);
+                    }
+                }
+                score += holdUpScore;
+                upReleased = false;
+            }
+            //down
+            if (downReleased){
+                int holdDownScore = 0;
+                for (NoteHold note : currentHold) {
+                    if (note.getNoteType().equals("Down")) {
+                        holdDownScore += note.upperGrade(currentFrame);
+                    }
+                }
+                score += holdDownScore;
+                downReleased = false;
+            }
+            //left
+            if (leftReleased){
+                int holdLeftScore = 0;
+                for (NoteHold note : currentHold) {
+                    if (note.getNoteType().equals("Left")) {
+                        holdLeftScore += note.upperGrade(currentFrame);
+                    }
+                }
+                score += holdLeftScore;
+                leftReleased = false;
+            }
+            //right
+            if (rightReleased){
+                int holdRightScore = 0;
+                for (NoteHold note : currentHold) {
+                    if (note.getNoteType().equals("Right")) {
+                        holdRightScore += note.upperGrade(currentFrame);
+                    }
+                }
+                score += holdRightScore;
+                rightReleased = false;
             }
 
-            //detect keyboard release
-            if (input.isUp(Keys.LEFT)) {
-
-            }
-            if (input.isUp(Keys.RIGHT)) {
-                // Add logical judgment statement
-            }
-            if (input.isUp(Keys.UP)) {
-                // Add logical judgment statement
-            }
-            if (input.isUp(Keys.DOWN)) {
-                // Add logical judgment statement
-            }
         }
 
     }
