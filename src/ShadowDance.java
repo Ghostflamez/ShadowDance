@@ -3,7 +3,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-
+import bagel.AbstractGame;
+import java.util.List;
+import java.util.Arrays;
 /**
  * Skeleton Code for SWEN20003 Project 1, Semester 2, 2023
  * Please enter your name below
@@ -15,25 +17,26 @@ public class ShadowDance extends AbstractGame {
     private final static String GAME_TITLE = "SHADOW DANCE";
 
 
-    /**
-     * This set of constants are used as flags to indicate the status of the game
-     */
-    private boolean showInitialInterface = true; // flags to indicate the current scene
-
-    private boolean isPaused = false; //Add a flag to track the pause status
+    // game status flags
+    private boolean showInitialInterface = true; // flags to indicate the current interface
+    private boolean isPaused = false; //flag to track the pause status
 
     /**
+     * Constants for the notes
      * The following constant declarations cannot be set as static
      * If they are declared as static, these resources may be shared among all instances of the application
      */
+
     //load main interface
     private final Image BACKGROUND_IMAGE = new Image("res/background.png");
 
     //set messages font
-    private final Font TITLE_FONT = new Font("res/FSO8BITR.ttf", 60); // assume 48 is the font size temporarily
-    private final Font INSTRUCTION_FONT = new Font("res/FSO8BITR.ttf", 24); // assume 24 is the font size temporarily
+    private final Font TITLE_FONT = new Font("res/FSO8BITR.ttf", 60);
+    private final Font INSTRUCTION_FONT = new Font("res/FSO8BITR.ttf", 24);
+    private final Font SCORE_FONT = new Font("res/FSO8BITR.ttf", 35);
 
-    //set messages
+
+    //set messages content
     private final String TITLE = "SHADOW DANCE";
     private final String INSTRUCTION1 = "PRESS SPACE TO START";
     private final String INSTRUCTION2 = "USE ARROW KEYS TO PLAY";
@@ -41,30 +44,44 @@ public class ShadowDance extends AbstractGame {
     //set messages options
     private final DrawOptions TITLE_OPTIONS = new DrawOptions().setBlendColour(1.0, 1.0, 1.0);
     private final DrawOptions INSTRUCTION_OPTIONS = new DrawOptions().setBlendColour(1.0, 1.0, 1.0);
-    private final Font SCORE_FONT = new Font("res/FSO8BITR.ttf", 35); // Assuming the font is located in the 'res' folder
-    private final double Y_POSITION = 384.0;
+    private final DrawOptions SCORE_OPTIONS = new DrawOptions().setBlendColour(1.0, 1.0, 1.0);
+
 
     // Variables for the game state
-    private int score = 0; // The player's score
+    public int currentFrame = 0; // The current frame number
+    public int score = 0; // The player's current score
 
-    public ShadowDance() {
-        super(WINDOW_WIDTH, WINDOW_HEIGHT, GAME_TITLE);
-        readCSV();
+    // constants for the game
+    private final double Y_POSITION_REFS = 384.0; // y-coordinate of the reference Notes
+
+    // preloaded data from csv
+    private List<List<String>> refSet; // store the reference notes data
+    private List<List<String>> popOrder; // store the pop order of notes
+    private List<NoteNormal> notes; // store the notes data
+
+    //construct a method for easy use
+    private boolean isLaneType(String value) { // check if the value is a lane type
+        return "Left".equals(value) || "Right".equals(value) || "Up".equals(value) || "Down".equals(value);
     }
 
+    /**
+     * Constructor for the game
+     */
+    public ShadowDance() {
+        super(WINDOW_WIDTH, WINDOW_HEIGHT, GAME_TITLE);
+
+        // Read data
+        readCSV();
+
+    }
     /**
      * Method used to read file
      * initialize the reference image
      * store pop order of notes in an array
      */
-    private ArrayList<String[]> refSet;
-    private ArrayList<String[]> popOrder;
-    private boolean isLaneType(String value) { // check if the value is a lane type
-        return "Left".equals(value) || "Right".equals(value) || "Up".equals(value) || "Down".equals(value);
-    }
     private void readCSV() {
-        refSet = new ArrayList<>();
-        popOrder = new ArrayList<>();
+        refSet = new ArrayList<List<String>>(); // An interface (List) cannot be instantiated directly.
+        popOrder = new ArrayList<List<String>>();
         String path = "G:\\SWEN_project1\\hongjianz1-project-1\\res\\test1.csv"; // find the path of the file
         int lineCount = 0;
 
@@ -98,9 +115,9 @@ public class ShadowDance extends AbstractGame {
                 if ("Lane".equals(data[0])) {
                     String refType = data[1];
                     double refxCoordinate = Double.parseDouble(data[2].trim());
-                    refSet.add(new String[]{refType, String.valueOf(refxCoordinate), "lane" + refType + ".png"});
+                    refSet.add(Arrays.asList(refType, String.valueOf(refxCoordinate), "lane" + refType + ".png"));
                 } else if (isLaneType(data[0])) {
-                    popOrder.add(data);
+                    popOrder.add(Arrays.asList(data));
                 } else {
                     throw new IOException("Unexpected value in the first column on line " + lineCount);
                 }
@@ -111,6 +128,9 @@ public class ShadowDance extends AbstractGame {
         }
     }
 
+    /**
+     * this is how to play two phases of the interface
+     */
 
     //draw initial interface
     private void drawInitialInterface(){
@@ -122,17 +142,60 @@ public class ShadowDance extends AbstractGame {
         INSTRUCTION_FONT.drawString(INSTRUCTION2, 320.0, 490.0, INSTRUCTION_OPTIONS);
     }
 
+    //draw playing interface
     private void drawPlayingInterface() {
+        // Create NoteRepository instance
+        NoteRepository notions = new NoteRepository();
+        notions = NoteFactory.makeNotes(refSet, popOrder);
         // Drawing the score
-        SCORE_FONT.drawString("SCORE  " + score, 20, 50); // 10, 10 为左上角坐标
-
+        SCORE_FONT.drawString("SCORE  " + score, 20.0, 50.0, SCORE_OPTIONS);
         // Drawing images based on refSet data
-        for (String[] data : refSet) {
-            double xPosition = Double.parseDouble(data[1]); // Convert the string to a double
-            String imageName = data[2]; // Get the image name
+        for (List<String> data : refSet) {
+            double xPosition = Double.parseDouble(data.get(1)); // Convert the string to a double
+            String imageName = data.get(2); // Get the image name
             Image img = new Image("res/" + imageName); // load the image
-            img.draw(xPosition, Y_POSITION);
+            img.draw(xPosition, Y_POSITION_REFS);
         }
+        // drawing normal notes
+        List<NoteNormal> normalNotes = new ArrayList<>();
+
+        normalNotes = notions.getNormal();
+
+        for (NoteNormal note : normalNotes) {
+                if (note.exit() > currentFrame && note.initialFrame < currentFrame) {
+                    // 创建图像
+                    Image img = new Image("res/note" + note.getNoteType() + ".png");
+
+                    // 获取坐标
+                    double yCoordinate = note.currentY(currentFrame);
+                    double xCoordinate = note.getXCoordinate();
+
+                    // 绘制图像
+                    img.draw(xCoordinate, yCoordinate);
+                }
+            }
+
+        // drawing hold notes
+        List<NoteHold> holdNotes = new ArrayList<>();
+
+        holdNotes = notions.getHold();
+        for (NoteHold note : holdNotes) {
+            if (note.exit() > currentFrame && note.initialFrame < currentFrame) {
+                // 创建图像
+                Image img = new Image("res/note" + note.getNoteType() + ".png");
+
+                // 获取y坐标
+                double yCoordinate = note.currentY(currentFrame);
+                double xCoordinate = note.getXCoordinate();
+                // 绘制图像
+                img.draw(xCoordinate, yCoordinate);
+            }
+        }
+
+
+
+
+        currentFrame += 1;
     }
 
     /**
